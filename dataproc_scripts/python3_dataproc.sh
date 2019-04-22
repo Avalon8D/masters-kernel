@@ -3,21 +3,23 @@
 # dataproc small example
 # gcloud beta dataproc clusters create thesis-tiny-python3-anaconda --subnet default --zone us-central1-a --master-machine-type n1-highmem-2 --master-boot-disk-size 40 --num-workers 2 --worker-machine-type n1-standard-2 --worker-boot-disk-size 40 --image-version 1.4-debian9 --project seo-analytics-219818 --optional-components=ANACONDA --initialization-actions 'gs://<bucket>/<path-to-initialization-action>/python3_dataproc.sh' --initialization-action-timeout 20m
 
+# everything between <> should be filled with appropriate values
+
 echo "export PYTHONHASHSEED=0
-export AWS_SECRET_ACCESS_KEY=<access_key>
-export AWS_ACCESS_KEY_ID=<key_id>
+export AWS_SECRET_ACCESS_KEY=<aws_access_key>
+export AWS_ACCESS_KEY_ID=<aws_key_id>
 export PYSPARK_DRIVER_PYTHON=/opt/python3/bin/python
 " | \
 tee -a /etc/profile.d/spark_config.sh /etc/*bashrc /usr/lib/spark/conf/spark-env.sh
 
 echo "spark.executorEnv.PYTHONHASHSEED=0
-spark.executorEnv.AWS_SECRET_ACCESS_KEY=<access_key>
-spark.executorEnv.AWS_ACCESS_KEY_ID=<key_id>
+spark.executorEnv.AWS_SECRET_ACCESS_KEY=<aws_access_key>
+spark.executorEnv.AWS_ACCESS_KEY_ID=<aws_key_id>
 export PYSPARK_DRIVER_PYTHON=/opt/python3/bin/python
 " >> /etc/spark/conf/spark-defaults.conf
 
-echo "$(head -n -1 /usr/lib/spark/bin/spark-submit)""export AWS_SECRET_ACCESS_KEY=<access_key>
-export AWS_ACCESS_KEY_ID=<key_id>
+echo "$(head -n -1 /usr/lib/spark/bin/spark-submit)""export AWS_SECRET_ACCESS_KEY=<aws_access_key>
+export AWS_ACCESS_KEY_ID=<aws_key_id>
 export PYSPARK_DRIVER_PYTHON=/opt/python3/bin/python
 ""$(tail -n 1 /usr/lib/spark/bin/spark-submit)" >> /usr/lib/spark/bin/spark-submit
 
@@ -51,7 +53,7 @@ echo "c.Application.log_level = '"'DEBUG'"'" >> ~/.jupyter/jupyter_notebook_conf
 echo "c.NotebookApp.ip = '"'0.0.0.0'"'" >> ~/.jupyter/jupyter_notebook_config.py
 echo "c.NotebookApp.open_browser = False" >> ~/.jupyter/jupyter_notebook_config.py
 echo "c.NotebookApp.port = 8888" >> ~/.jupyter/jupyter_notebook_config.py
-echo "c.NotebookApp.password = u'"'sha1:5c2fc8ca8fb5:738b32af1bb5b7252c274998b89ce2ad3acdf04e'"'" >> ~/.jupyter/jupyter_notebook_config.py' > /usr/bin/config_jupyter
+echo "c.NotebookApp.password = u'"'<notebook password hash>'"'" >> ~/.jupyter/jupyter_notebook_config.py' > /usr/bin/config_jupyter
 
 chmod +x /usr/bin/config_jupyter
 
