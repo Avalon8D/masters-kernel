@@ -16,7 +16,7 @@ spark.executorEnv.AWS_SECRET_ACCESS_KEY=<aws_access_key>
 spark.executorEnv.AWS_ACCESS_KEY_ID=<aws_key_id>
 " >> /etc/spark/conf/spark-defaults.conf
 
-echo "$(head -n -1 /usr/lib/spark/bin/spark-submit)""export AWS_SECRET_ACCESS_KEY=<aws_access_key>
+echo "$(head -n 1 /usr/lib/spark/bin/spark-submit)""export AWS_SECRET_ACCESS_KEY=<aws_access_key>
 export AWS_ACCESS_KEY_ID=<aws_key_id>
 export PYSPARK_DRIVER_PYTHON=python
 ""$(tail -n 1 /usr/lib/spark/bin/spark-submit)" >> /usr/lib/spark/bin/spark-submit
@@ -61,5 +61,5 @@ jupyter toree install --spark_home=/usr/lib/spark --interpreters=Scala,PySpark,S
 conda update --all -y
 sudo apt upgrade -y
 
-echo 'tmux new-session -d -s "jupyter_session" "/usr/bin/config_jupyter && jupyter notebook"' >> /usr/bin/lift_jupyter
+echo 'tmux new-session -d -s "jupyter_session" "SPARK_OPTS=${SPARK_OPTS} /usr/bin/config_jupyter && jupyter notebook"' >> /usr/bin/lift_jupyter
 chmod +x /usr/bin/lift_jupyter

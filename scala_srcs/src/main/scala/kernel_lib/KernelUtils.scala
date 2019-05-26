@@ -46,11 +46,11 @@ object KernelUtils extends Serializable {
 
     def kernel_crosses (
         X:breeze.linalg.DenseMatrix[Double],
-        Y:breeze.linalg.DenseMatrix[Double],
+        Y:Iterator[breeze.linalg.DenseVector[Double]],
         kernel_func:(breeze.linalg.DenseVector[Double], breeze.linalg.DenseVector[Double]) => Double
     ):breeze.linalg.DenseMatrix[Double] = {
         // does Y then X because column major
-        val kernel_cross_array = Y(::, breeze.linalg.*).iterator.flatMap (
+        val kernel_cross_array = Y.flatMap (
             (y:breeze.linalg.DenseVector[Double]) => {
                 X(::, breeze.linalg.*).iterator.map (
                     (x:breeze.linalg.DenseVector[Double]) => kernel_func (x, y)
@@ -66,7 +66,7 @@ object KernelUtils extends Serializable {
     
     def kernel_projs (
         X:breeze.linalg.DenseMatrix[Double],
-        Y:breeze.linalg.DenseMatrix[Double],
+        Y:Iterator[breeze.linalg.DenseVector[Double]],
         sqrt_GX:breeze.linalg.DenseMatrix[Double],
         kernel_func:(breeze.linalg.DenseVector[Double], breeze.linalg.DenseVector[Double]) => Double
     ):breeze.linalg.DenseMatrix[Double] = {
@@ -79,7 +79,7 @@ object KernelUtils extends Serializable {
     
     def kernel_leverages (
         X:breeze.linalg.DenseMatrix[Double],
-        Y:breeze.linalg.DenseMatrix[Double],
+        Y:Iterator[breeze.linalg.DenseVector[Double]],
         sqrt_GX:breeze.linalg.DenseMatrix[Double],
         kernel_func:(breeze.linalg.DenseVector[Double], breeze.linalg.DenseVector[Double]) => Double
     ):breeze.linalg.DenseVector[Double] = {
