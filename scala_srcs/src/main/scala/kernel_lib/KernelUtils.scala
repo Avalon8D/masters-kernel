@@ -24,7 +24,7 @@ object KernelUtils extends Serializable {
     ):breeze.linalg.DenseVector[Double] = {
         val y_proj = kernel_cross (X, y, kernel_func)
         
-        LinalgUtils.inplace_lower_triangular_solve (sqrt_GX, y_proj)
+        LinalgUtils.inplace_lower_triangular_solve (sqrt_GX, y_proj, trans_opt="N")
         
         y_proj
     }
@@ -41,7 +41,7 @@ object KernelUtils extends Serializable {
             out (i) = kernel_func (X(::, i), y)
         }
         
-        LinalgUtils.inplace_lower_triangular_solve (sqrt_GX, out)
+        LinalgUtils.inplace_lower_triangular_solve (sqrt_GX, out, trans_opt="N")
     }
 
     def kernel_crosses (
@@ -72,7 +72,7 @@ object KernelUtils extends Serializable {
     ):breeze.linalg.DenseMatrix[Double] = {
         val Y_proj = kernel_crosses (X, Y, kernel_func)
         
-        LinalgUtils.inplace_lower_triangular_solve (sqrt_GX, Y_proj)
+        LinalgUtils.inplace_lower_triangular_solve (sqrt_GX, Y_proj, trans_opt="N")
         
         Y_proj
     }
@@ -83,14 +83,15 @@ object KernelUtils extends Serializable {
         sqrt_GX:breeze.linalg.DenseMatrix[Double],
         kernel_func:(breeze.linalg.DenseVector[Double], breeze.linalg.DenseVector[Double]) => Double
     ):breeze.linalg.DenseVector[Double] = {
-        val Y_proj = kernel_projs (X, Y, sqrt_GX, kernel_func)
+        val Y_Seq = Y.toSeq
+        val Y_proj = kernel_projs (X, Y_Seq.iterator, sqrt_GX, kernel_func)
         
         Y_proj :*= Y_proj
         
         val residual = breeze.linalg.sum (Y_proj.t (breeze.linalg.*, ::))
         
-        for (i <- 0 until residual.length) {
-            residual (i) = kernel_norm (Y (::, i), kernel_func) - residual (i)
+        for ((i, aY_i) <- (0 until residual.length).zip (Y_Seq)) {
+            residual (i) = kernel_norm (aY_i, kernel_func) - residual (i)
         }
         
         residual

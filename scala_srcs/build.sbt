@@ -13,3 +13,7 @@ libraryDependencies += "org.scalanlp" %% "breeze-natives" % "1.0-RC2"
 
 // https://mvnrepository.com/artifact/org.scalanlp/breeze
 libraryDependencies += "org.scalanlp" %% "breeze" % "1.0-RC2"
+
+// up to understanding how to set up propper version...
+// https://mvnrepository.com/artifact/com.github.fommil.netlib/all
+// libraryDependencies += "com.github.fommil.netlib" % "all" % "1.1.2" pomOnly()

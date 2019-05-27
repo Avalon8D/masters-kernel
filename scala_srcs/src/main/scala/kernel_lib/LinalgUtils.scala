@@ -2,10 +2,14 @@ package kernel_lib
 import com.github.fommil.netlib.LAPACK.{getInstance => lapack}
 
 object LinalgUtils extends Serializable {
+    val lapack_trans_opts = Set ("T", "N", "C")
+
     def inplace_lower_triangular_solve (
         L:breeze.linalg.DenseMatrix[Double], 
-        x: breeze.linalg.DenseVector[Double]
+        x: breeze.linalg.DenseVector[Double],
+        trans_opt:String
     ):Unit = {
+        assert (lapack_trans_opts.contains (trans_opt))
         val N = L.rows
         val info = new  org.netlib.util.intW (0)
         lapack.dtrtrs(
@@ -29,8 +33,10 @@ object LinalgUtils extends Serializable {
     
     def inplace_lower_triangular_solve (
         L:breeze.linalg.DenseMatrix[Double], 
-        X: breeze.linalg.DenseMatrix[Double]
+        X: breeze.linalg.DenseMatrix[Double],
+        trans_opt:String
     ):Unit = {
+        assert (lapack_trans_opts.contains (trans_opt))
         val N = L.rows
         val info = new  org.netlib.util.intW (0)
         lapack.dtrtrs(

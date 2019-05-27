@@ -2,7 +2,7 @@
 
 # dataproc small example
 # gsutil cp ./python3_dataproc.sh gs://<bucket>/<path-to-initialization-action>/python3_dataproc.sh
-# gcloud beta dataproc clusters create thesis-tiny-python3-anaconda --subnet default --zone us-central1-a --master-machine-type n1-highmem-2 --master-boot-disk-size 40 --num-workers 2 --worker-machine-type n1-standard-2 --worker-boot-disk-size 40 --image-version 1.4-debian9 --project seo-analytics-219818 --initialization-actions 'gs://<bucket>/<path-to-initialization-action>/python3_dataproc.sh' --initialization-action-timeout 20m
+# gcloud beta dataproc clusters create thesis-tiny-python3-anaconda --subnet default --zone <your zone> --master-machine-type n1-highmem-2 --master-boot-disk-size 40 --num-workers 2 --worker-machine-type n1-standard-2 --worker-boot-disk-size 40 --image-version 1.4-debian9 --project <your porject> --initialization-actions 'gs://<bucket>/<path-to-initialization-action>/python3_dataproc.sh' --initialization-action-timeout 20m
 
 # everything between <> should be filled with appropriate values
 
