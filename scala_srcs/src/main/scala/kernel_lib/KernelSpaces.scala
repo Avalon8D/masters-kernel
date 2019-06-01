@@ -213,6 +213,7 @@ class KernelSpaces private (
     def kproj_udf = this._kproj_udf
     def pseudo_kleverage_udf = this._pseudo_kleverage_udf
     def min_kleverage_udf = this._min_kleverage_udf
+    def min_kleverages_udf = this._min_kleverages_udf
 
     def lambda = this._lambda
     def Xs_count = this._Xs_count
