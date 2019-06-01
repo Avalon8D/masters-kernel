@@ -81,8 +81,8 @@ class KernelPack private (
     private var _kproj_udf:org.apache.spark.sql.expressions.UserDefinedFunction = null
     private var _kleverage_udf:org.apache.spark.sql.expressions.UserDefinedFunction = null
     
-    def kproj_udf () = _kproj_udf
-    def kleverage_udf () = _kleverage_udf
+    def kproj_udf = _kproj_udf
+    def kleverage_udf = _kleverage_udf
 
     val knorm_udf = KernelPack.knorm_factory (kernel_func)
 

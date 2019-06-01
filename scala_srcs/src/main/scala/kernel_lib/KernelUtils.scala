@@ -46,11 +46,11 @@ object KernelUtils extends Serializable {
 
     def kernel_crosses (
         X:breeze.linalg.DenseMatrix[Double],
-        Y:Iterator[breeze.linalg.DenseVector[Double]],
+        Y:breeze.linalg.DenseMatrix[Double],
         kernel_func:(breeze.linalg.DenseVector[Double], breeze.linalg.DenseVector[Double]) => Double
     ):breeze.linalg.DenseMatrix[Double] = {
         // does Y then X because column major
-        val kernel_cross_array = Y.flatMap (
+        val kernel_cross_array = Y(::, breeze.linalg.*).iterator.flatMap (
             (y:breeze.linalg.DenseVector[Double]) => {
                 X(::, breeze.linalg.*).iterator.map (
                     (x:breeze.linalg.DenseVector[Double]) => kernel_func (x, y)
@@ -59,14 +59,14 @@ object KernelUtils extends Serializable {
         ).toArray
 
         new breeze.linalg.DenseMatrix (
-            X.cols, kernel_cross_array.length / X.cols, 
+            X.cols, Y.cols, 
             kernel_cross_array
         )
     }
     
     def kernel_projs (
         X:breeze.linalg.DenseMatrix[Double],
-        Y:Iterator[breeze.linalg.DenseVector[Double]],
+        Y:breeze.linalg.DenseMatrix[Double],
         sqrt_GX:breeze.linalg.DenseMatrix[Double],
         kernel_func:(breeze.linalg.DenseVector[Double], breeze.linalg.DenseVector[Double]) => Double
     ):breeze.linalg.DenseMatrix[Double] = {
@@ -79,22 +79,37 @@ object KernelUtils extends Serializable {
     
     def kernel_leverages (
         X:breeze.linalg.DenseMatrix[Double],
-        Y:Iterator[breeze.linalg.DenseVector[Double]],
+        Y:breeze.linalg.DenseMatrix[Double],
         sqrt_GX:breeze.linalg.DenseMatrix[Double],
         kernel_func:(breeze.linalg.DenseVector[Double], breeze.linalg.DenseVector[Double]) => Double
     ):breeze.linalg.DenseVector[Double] = {
-        val Y_Seq = Y.toSeq
-        val Y_proj = kernel_projs (X, Y_Seq.iterator, sqrt_GX, kernel_func)
+        val Y_proj = kernel_projs (X, Y, sqrt_GX, kernel_func)
+ 
+        new breeze.linalg.DenseVector (       
+            Y(::, breeze.linalg.*).iterator.zip (
+                Y_proj (::, breeze.linalg.*).iterator
+            ).map {
+                case (y, y_proj) => kernel_norm (y, kernel_func) - y_proj.t * y_proj 
+            }.toArray
+        )
+    }
+
+    def buff_kernel_leverages (
+        X:breeze.linalg.DenseMatrix[Double],
+        Y:breeze.linalg.DenseMatrix[Double],
+        sqrt_GX:breeze.linalg.DenseMatrix[Double],
+        kernel_func:(breeze.linalg.DenseVector[Double], breeze.linalg.DenseVector[Double]) => Double,
+        out:breeze.linalg.DenseVector[Double] 
+    ):Unit = {
+        val Y_proj = kernel_projs (X, Y, sqrt_GX, kernel_func)
         
-        Y_proj :*= Y_proj
-        
-        val residual = breeze.linalg.sum (Y_proj.t (breeze.linalg.*, ::))
-        
-        for ((i, aY_i) <- (0 until residual.length).zip (Y_Seq)) {
-            residual (i) = kernel_norm (aY_i, kernel_func) - residual (i)
+        Y(::, breeze.linalg.*).iterator.zip (
+            Y_proj (::, breeze.linalg.*).iterator
+        ).zip ((0 until out.length).iterator).foreach {
+            case ((y, y_proj), i) => { 
+                out (i) = kernel_norm (y, kernel_func) - y_proj.t * y_proj 
+            }
         }
-        
-        residual
     }
 
     def kernel_gram (

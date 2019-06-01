@@ -147,6 +147,44 @@ object KernelSpaces {
             }:Double
         )
     }
+
+    def min_kleverages_factory (
+        Xs:Seq[breeze.linalg.DenseMatrix[Double]],
+        sqrt_GXs:Seq[breeze.linalg.DenseMatrix[Double]],
+        kernel_func:(
+            breeze.linalg.DenseVector[Double], 
+            breeze.linalg.DenseVector[Double]
+        ) => Double
+    ) = {
+        val buffer_len = Xs.map (_.cols).max
+        val kspace_pairs = Xs.zip (sqrt_GXs)
+
+        org.apache.spark.sql.functions.udf (
+            (Y:Seq[Seq[Double]]) => {
+                val Y_dense = new breeze.linalg.DenseMatrix (
+                    Y.head.length, Y.length,
+                    Y.iterator.flatMap (_.iterator).toArray
+                )
+
+                val pairs_leverages = new breeze.linalg.DenseMatrix[Double](
+                    Y_dense.cols, kspace_pairs.length
+                )
+
+                kspace_pairs.iterator.zip (
+                    pairs_leverages (::, breeze.linalg.*).iterator
+                ).foreach {
+                    case ((aX, sqrt_GX), leverages) => {
+                        KernelUtils.buff_kernel_leverages (
+                            aX, Y_dense, sqrt_GX, kernel_func,
+                            leverages
+                        )
+                    }
+                }
+
+                pairs_leverages (::, breeze.linalg.*).iterator.map (_.min).toSeq
+            }:Seq[Double]
+        )
+    }
 }
 
 class KernelSpaces private (
@@ -162,6 +200,7 @@ class KernelSpaces private (
     private var _kproj_udf:org.apache.spark.sql.expressions.UserDefinedFunction = null
     private var _pseudo_kleverage_udf:org.apache.spark.sql.expressions.UserDefinedFunction = null
     private var _min_kleverage_udf:org.apache.spark.sql.expressions.UserDefinedFunction = null
+    private var _min_kleverages_udf:org.apache.spark.sql.expressions.UserDefinedFunction = null
     
     private var _Xs_count:Int = 0
     private var _Xs_last_id:Int = 0
@@ -171,20 +210,20 @@ class KernelSpaces private (
 
     val Xs_length = this._Xs.length
 
-    def kproj_udf () = this._kproj_udf
-    def pseudo_kleverage_udf () = this._pseudo_kleverage_udf
-    def min_kleverage_udf () = this._min_kleverage_udf
+    def kproj_udf = this._kproj_udf
+    def pseudo_kleverage_udf = this._pseudo_kleverage_udf
+    def min_kleverage_udf = this._min_kleverage_udf
 
-    def lambda () = this._lambda
-    def Xs_count () = this._Xs_count
-    def Xs_last_id () = this._Xs_last_id
+    def lambda = this._lambda
+    def Xs_count = this._Xs_count
+    def Xs_last_id = this._Xs_last_id
 
-    def Xs () = this._Xs.slice (0, this._Xs_count).toSeq
-    def sqrt_GXs () = this._sqrt_GXs.slice (0, this._Xs_count).toSeq
-    def regularizer_diags () = this._regularizer_diags.slice (0, this._Xs_count).toSeq
-    def Xs_ids () = this._Xs_ids.slice (0, this._Xs_count).toSeq
+    def Xs = this._Xs.slice (0, this._Xs_count).toSeq
+    def sqrt_GXs = this._sqrt_GXs.slice (0, this._Xs_count).toSeq
+    def regularizer_diags = this._regularizer_diags.slice (0, this._Xs_count).toSeq
+    def Xs_ids = this._Xs_ids.slice (0, this._Xs_count).toSeq
 
-    private def update_udfs ():Unit = {
+    private def update_udfs:Unit = {
         // reconstructs udfs
         this._kproj_udf = KernelSpaces.kproj_factory (
             this._Xs.slice (0, this._Xs_count).toSeq, 
@@ -199,6 +238,12 @@ class KernelSpaces private (
         )
 
         this._min_kleverage_udf = KernelSpaces.min_kleverage_factory (
+            this._Xs.slice (0, this._Xs_count).toSeq, 
+            this._sqrt_GXs.slice (0, this._Xs_count).toSeq, 
+            this.kernel_func
+        )
+
+        this._min_kleverages_udf = KernelSpaces.min_kleverages_factory (
             this._Xs.slice (0, this._Xs_count).toSeq, 
             this._sqrt_GXs.slice (0, this._Xs_count).toSeq, 
             this.kernel_func

@@ -48,13 +48,6 @@ class Ridge_SO (
     def predict (
         Y:breeze.linalg.DenseMatrix[Double] // y values at which predict de values f(y)
     ) = {
-        val KXY = KernelUtils.kernel_crosses (X, Y(::, breeze.linalg.*).iterator, kernel_func)
-        alpha.t * (KXY)
-    }
-
-    def predict (
-        Y:Iterator[breeze.linalg.DenseVector[Double]] // y values at which predict de values f(y)
-    ) = {
         val KXY = KernelUtils.kernel_crosses (X, Y, kernel_func)
         alpha.t * (KXY)
     }
@@ -74,13 +67,6 @@ class Ridge_MO (
 
     def predict (
         Y:breeze.linalg.DenseMatrix[Double] // y values at which predict de values f(y)
-    ) = {
-        val KXY = KernelUtils.kernel_crosses (X, Y(::, breeze.linalg.*).iterator, kernel_func)
-        KXY.t * Alpha
-    }
-
-    def predict (
-        Y:Iterator[breeze.linalg.DenseVector[Double]] // y values at which predict de values f(y)
     ) = {
         val KXY = KernelUtils.kernel_crosses (X, Y, kernel_func)
         KXY.t * Alpha
