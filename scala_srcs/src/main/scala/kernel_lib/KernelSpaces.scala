@@ -181,7 +181,7 @@ object KernelSpaces {
                     }
                 }
 
-                pairs_leverages (::, breeze.linalg.*).iterator.map (_.min).toSeq
+                pairs_leverages (breeze.linalg.*, ::).iterator.map (_.min).toSeq
             }:Seq[Double]
         )
     }
