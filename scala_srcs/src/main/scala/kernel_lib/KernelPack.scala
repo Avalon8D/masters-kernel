@@ -1,5 +1,7 @@
 package kernel_lib
 
+import linalg_impl.LinalgUtils
+
 object KernelPack {
     def apply (
         X:breeze.linalg.DenseMatrix[Double],

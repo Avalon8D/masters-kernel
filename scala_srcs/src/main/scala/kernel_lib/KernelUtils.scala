@@ -1,5 +1,7 @@
 package kernel_lib
 
+import linalg_impl.LinalgUtils
+
 object KernelUtils extends Serializable {    
     val kernel_norm = (
         x:breeze.linalg.DenseVector[Double], 
@@ -105,7 +107,7 @@ object KernelUtils extends Serializable {
         
         Y(::, breeze.linalg.*).iterator.zip (
             Y_proj (::, breeze.linalg.*).iterator
-        ).zip ((0 until out.length).iterator).foreach {
+        ).zipWithIndex.foreach {
             case ((y, y_proj), i) => { 
                 out (i) = kernel_norm (y, kernel_func) - y_proj.t * y_proj 
             }

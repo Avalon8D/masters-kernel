@@ -1,5 +1,7 @@
 package kernel_lib
 
+import linalg_impl.LinalgUtils
+
 object KernelSpaces {
     def apply (
         X:breeze.linalg.DenseMatrix[Double],
@@ -160,10 +162,10 @@ object KernelSpaces {
         val kspace_pairs = Xs.zip (sqrt_GXs)
 
         org.apache.spark.sql.functions.udf (
-            (Y:Seq[Seq[Double]]) => {
+            (cols:Int, Y:Seq[Double]) => {
                 val Y_dense = new breeze.linalg.DenseMatrix (
-                    Y.head.length, Y.length,
-                    Y.iterator.flatMap (_.iterator).toArray
+                    Y.length / cols, cols,
+                    Y.toArray
                 )
 
                 val pairs_leverages = new breeze.linalg.DenseMatrix[Double](
@@ -181,7 +183,7 @@ object KernelSpaces {
                     }
                 }
 
-                pairs_leverages (breeze.linalg.*, ::).iterator.map (_.min).toSeq
+                breeze.linalg.min (pairs_leverages (breeze.linalg.*, ::)).data.toSeq
             }:Seq[Double]
         )
     }

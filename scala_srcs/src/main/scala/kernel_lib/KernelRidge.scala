@@ -1,6 +1,8 @@
 package kernel_lib
 
-// write ridge regressor
+import linalg_impl.LinalgUtils
+
+// write ridge regressor udfs corresponding to predicts
 
 object Ridge {
     // one version for each useful case
@@ -36,7 +38,7 @@ object Ridge {
 class Ridge_SO (
     val X:breeze.linalg.DenseMatrix[Double],
     val alpha:breeze.linalg.DenseVector[Double],
-    kernel_func:(breeze.linalg.DenseVector[Double], breeze.linalg.DenseVector[Double]) => Double
+    val kernel_func:(breeze.linalg.DenseVector[Double], breeze.linalg.DenseVector[Double]) => Double
 ) {
     def predict (
         y:breeze.linalg.DenseVector[Double] // y value at which predict de value f(y)
@@ -56,7 +58,7 @@ class Ridge_SO (
 class Ridge_MO (
     val X:breeze.linalg.DenseMatrix[Double],
     val Alpha:breeze.linalg.DenseMatrix[Double],
-    kernel_func:(breeze.linalg.DenseVector[Double], breeze.linalg.DenseVector[Double]) => Double
+    val kernel_func:(breeze.linalg.DenseVector[Double], breeze.linalg.DenseVector[Double]) => Double
 ) {
     def predict (
         y:breeze.linalg.DenseVector[Double] // y value at which predict de value f(y)
