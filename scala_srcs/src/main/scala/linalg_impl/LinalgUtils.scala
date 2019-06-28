@@ -227,7 +227,7 @@ object LinalgUtils extends Serializable {
             )
 
             Y_dense *= Y_dense
-            (Y_dense.length.toLong, Y_dense.data.toSeq)
+            (cols.toLong, Y_dense.data.toSeq)
         }:(Long, Seq[Double])
     )
 
