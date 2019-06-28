@@ -112,12 +112,17 @@ object LinalgUtils extends Serializable {
         scala.math.min (_:Double, 1.0)
     )
 
+    def split_arrays[T] (cols:Int, arr:Seq[T]):Seq[Seq[T]] = {
+        val rows = arr.length / cols
+        
+        (0 until arr.length by cols).map (
+            (i:Int) => arr.slice (i, i + rows)
+        ).toSeq
+    }
+
     // sections contiguous array data based on length value
-    val split_arrays = org.apache.spark.sql.functions.udf (
-        (cols_arr:(Long, Seq[Double])) => {
-            val (cols, arr) = cols_arr 
-            arr.grouped (cols.toInt).toSeq
-        }:Seq[Seq[Double]]
+    val split_arrays_udf = org.apache.spark.sql.functions.udf (
+        split_arrays[Double] _
     )
 
     def add_vec_to_vecs (vec_to_add:Seq[Double]) = {
@@ -217,13 +222,12 @@ object LinalgUtils extends Serializable {
 
     def square_vecs = org.apache.spark.sql.functions.udf (
         (cols:Int, Y:Seq[Double]) => {
-            val Y_dense = new breeze.linalg.DenseMatrix (
-                Y.length / cols, cols,
+            val Y_dense = new breeze.linalg.DenseVector (
                 Y.toArray
             )
 
             Y_dense *= Y_dense
-            (Y_dense.cols.toLong, Y_dense.data.toSeq)
+            (Y_dense.length.toLong, Y_dense.data.toSeq)
         }:(Long, Seq[Double])
     )
 

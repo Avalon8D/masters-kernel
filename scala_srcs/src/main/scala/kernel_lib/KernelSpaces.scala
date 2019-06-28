@@ -46,6 +46,29 @@ object KernelSpaces {
             )
         )
     }
+
+    def knorms_factory (
+        kernel_func:(
+            breeze.linalg.DenseVector[Double], 
+            breeze.linalg.DenseVector[Double]
+        ) => Double
+    ) = {
+        org.apache.spark.sql.functions.udf (
+            (cols:Int, Y:Seq[Double]) => {
+                val Y_dense = new breeze.linalg.DenseMatrix (
+                    Y.length / cols, cols,
+                    Y.toArray
+                )
+
+                (0 until cols).map {
+                    case i => KernelUtils.kernel_norm (
+                        Y_dense (::, i),
+                        kernel_func
+                    )
+                }.toSeq
+            }:Seq[Double]
+        )
+    }
     
     def kproj_factory (
         Xs:Seq[breeze.linalg.DenseMatrix[Double]],
