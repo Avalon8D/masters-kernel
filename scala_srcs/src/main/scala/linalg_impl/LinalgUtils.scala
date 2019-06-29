@@ -115,8 +115,8 @@ object LinalgUtils extends Serializable {
     def split_arrays[T] (cols:Int, arr:Seq[T]):Seq[Seq[T]] = {
         val rows = arr.length / cols
         
-        (0 until arr.length by cols).map (
-            (i:Int) => arr.slice (i, i + rows).to[Seq]
+        arr.grouped (cols).map (
+            _.to[Seq]
         ).to[Seq]
     }
 
