@@ -116,8 +116,8 @@ object LinalgUtils extends Serializable {
         val rows = arr.length / cols
         
         (0 until arr.length by cols).map (
-            (i:Int) => arr.slice (i, i + rows)
-        ).toSeq
+            (i:Int) => arr.slice (i, i + rows).to[Seq]
+        ).to[Seq]
     }
 
     // sections contiguous array data based on length value
