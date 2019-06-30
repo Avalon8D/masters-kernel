@@ -108,15 +108,12 @@ object LinalgUtils extends Serializable {
         }
     )
     
-    val cap_to_one_udf = org.apache.spark.sql.functions.udf (
-        scala.math.min (_:Double, 1.0)
-    )
-
+    // maybe unecessarely overhady, but o well
     def split_arrays[T] (cols:Int, arr:Seq[T]):Seq[Seq[T]] = {
         val rows = arr.length / cols
-        
-        arr.grouped (cols).map (
-            _.to[Seq]
+
+        (0 until arr.length by rows).map (
+            (i:Int) => arr.slice (i, i + rows).to[Seq]
         ).to[Seq]
     }
 
