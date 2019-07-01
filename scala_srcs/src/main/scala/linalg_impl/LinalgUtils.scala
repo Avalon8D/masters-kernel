@@ -107,6 +107,10 @@ object LinalgUtils extends Serializable {
             dense_y.data.toSeq
         }
     )
+
+    val cap_to_one_udf = org.apache.spark.sql.functions.udf (
+        scala.math.min (_:Double, 1.0)
+    )
     
     // maybe unecessarely overhady, but o well
     def split_arrays[T] (cols:Int, arr:Seq[T]):Seq[Seq[T]] = {
